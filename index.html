@@ -1,14 +1,55 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <title>teainfomation</title>
+    <title>お茶情報</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="scripts.js"></script>
-    
+    <!-- Firebase SDKのために type="module" を使用 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+
+        // Firebaseコンフィグ
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwGpWK27gyFZVsQSn6YyDGLSDCa1_g2Vg",
+            authDomain: "japanse-tea-info.firebaseapp.com",
+            projectId: "japanse-tea-info",
+            storageBucket: "japanse-tea-info.appspot.com",
+            messagingSenderId: "696035355872",
+            appId: "1:696035355872:web:81866276894fafe2cbb485"
+        };
+        
+        // Firebase初期化
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // データ保存処理
+        document.getElementById('teaForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const teaName = document.getElementById('teaName').value;
+            const color = parseInt(document.getElementById('color').value, 10);
+            const aroma = parseInt(document.getElementById('aroma').value, 10);
+            const taste = parseInt(document.getElementById('taste').value, 10);
+            const notes = document.getElementById('notes').value;
+            
+            // Firebase Firestoreにデータ保存
+            try {
+                await addDoc(collection(db, 'teas'), {
+                    teaName,
+                    color,
+                    aroma,
+                    taste,
+                    notes
+                });
+                alert('データが保存されました');
+            } catch (error) {
+                console.error('データ保存時にエラーが発生しました:', error);
+            }
+        });
+    </script>
 </head>
   <body>
     <h1>入力フォーム</h1>
@@ -40,64 +81,44 @@
       <canvas id="flavorChart"></canvas>
     </div>
     <script>
-      document.getElementById('teaForm').addEventListener('submit', function(event) {
-      event.preventDefault(); 
-              const teaName = document.getElementById('teaName').value;
-              const color = parseInt(document.getElementById('color').value, 10);
-              const aroma = parseInt(document.getElementById('aroma').value, 10);
-              const taste = parseInt(document.getElementById('taste').value, 10);
-              // Chart.jsを使用して味わいチャートを描画
-              const data = {
-                  labels: ['水色', '香り', '味'],
-                  datasets: [{
-                      label: teaName,
-                      data: [color, aroma, taste],
-                      backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                      borderColor: 'rgba(54, 162, 235, 1)',
-                      borderWidth: 1
-                  }]
-              };
-              
-              const config = {
-                  type: 'radar',
-                  data: data,
-                  options: {
-                      scales: {
-                          r: {
-                              beginAtZero: true,
-                              min: 0,
-                              max: 5
-                          }
-                      }
-                  }
-              };
-              
-              const flavorChart = new Chart(
-                  document.getElementById('flavorChart'),
-                  config
-              );
-          });
+        document.getElementById('teaForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            const teaName = document.getElementById('teaName').value;
+            const color = parseInt(document.getElementById('color').value, 10);
+            const aroma = parseInt(document.getElementById('aroma').value, 10);
+            const taste = parseInt(document.getElementById('taste').value, 10);
+
+            // Chart.jsを使用して味わいチャートを描画
+            const data = {
+                labels: ['水色', '香り', '味'],
+                datasets: [{
+                    label: teaName,
+                    data: [color, aroma, taste],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            };
+            
+            const config = {
+                type: 'radar',
+                data: data,
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 5
+                        }
+                    }
+                }
+            };
+            
+            const flavorChart = new Chart(
+                document.getElementById('flavorChart'),
+                config
+            );
+        });
     </script>
   </body>
-</html>
-
-<script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-  
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBwGpWK27gyFZVsQSn6YyDGLSDCa1_g2Vg",
-      authDomain: "japanse-tea-info.firebaseapp.com",
-      projectId: "japanse-tea-info",
-      storageBucket: "japanse-tea-info.appspot.com",
-      messagingSenderId: "696035355872",
-      appId: "1:696035355872:web:81866276894fafe2cbb485"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-  </script>
 </html>
